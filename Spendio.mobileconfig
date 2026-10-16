@@ -1795,11 +1795,11 @@
 			<key>Precomposed</key>
 			<true/>
 			<key>URL</key>
-			<string>https://script.google.com/macros/s/AKfycbysZvRIXgyZBFS_cTxvLFYDHZTr9HWC90HzCVLwjCUBomOEOmr9IJFYMjwnVG90Sj_X/exec</string>
+			<string>https://proparn.github.io/Spendio/app/</string>
 		</dict>
 	</array>
 	<key>PayloadDescription</key>
-	<string>เพิ่มไอคอน Spendio บนหน้าจอหลัก (มีแค่ไอคอนและลิงก์ ไม่ควบคุมเครื่อง)</string>
+	<string>ไอคอน Spendio เปิดแอพเต็มจอ (ไม่มีแถบสีฟ้าของ Google)</string>
 	<key>PayloadDisplayName</key>
 	<string>Spendio</string>
 	<key>PayloadIdentifier</key>

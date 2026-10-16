@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Spendio">
+<meta name="theme-color" content="#F5F6FA">
+<meta name="referrer" content="no-referrer">
+<title>Spendio</title>
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon-180.png">
+<link rel="icon" href="../icons/favicon-32.png">
+<style>
+  /* หน้าเปิดแอพ Spendio: ฝังเว็บแอป Apps Script เต็มจอ (แถบสีฟ้าของ Google จะไม่แสดง) · ไม่มีข้อมูลการเงินในหน้านี้ */
+  :root { --bg: #F5F6FA; --ink: #1E2A44; --soft: #6B7488; --pri: #FF6B5E; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #12161F; --ink: #E8ECF4; --soft: #9AA3B5; } }
+  :root[data-theme="dark"] { --bg: #12161F; --ink: #E8ECF4; --soft: #9AA3B5; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font-family: -apple-system, "IBM Plex Sans Thai", sans-serif; }
+  body { box-sizing: border-box; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); overflow: hidden; }
+  iframe { display: block; width: 100%; height: 100%; border: 0; background: var(--bg); }
+  #wait { position: fixed; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; background: var(--bg); transition: opacity .25s; }
+  #wait.gone { opacity: 0; pointer-events: none; }
+  #wait img { width: 84px; height: 84px; border-radius: 20px; }
+  #wait p { color: var(--soft); font-size: 15px; margin: 14px 0 0; }
+  #fallback { display: none; margin-top: 18px; }
+  #fallback a { display: inline-block; background: var(--pri); color: #fff; text-decoration: none; padding: 13px 22px; border-radius: 14px; font-weight: 600; font-size: 16px; }
+  #fallback small { display: block; color: var(--soft); margin-top: 10px; font-size: 13px; max-width: 300px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<iframe id="app" title="Spendio" allow="clipboard-write; microphone; camera" src="https://script.google.com/macros/s/AKfycbysZvRIXgyZBFS_cTxvLFYDHZTr9HWC90HzCVLwjCUBomOEOmr9IJFYMjwnVG90Sj_X/exec"></iframe>
+<div id="wait"><div>
+  <img src="../icons/icon-192.png" alt="">
+  <p id="msg">กำลังเปิด Spendio…</p>
+  <div id="fallback">
+    <a id="direct" href="https://script.google.com/macros/s/AKfycbysZvRIXgyZBFS_cTxvLFYDHZTr9HWC90HzCVLwjCUBomOEOmr9IJFYMjwnVG90Sj_X/exec" target="_top">เปิดแบบปกติ</a>
+    <small>ถ้าเปิดแบบเต็มจอไม่ขึ้น (เช่น ต้องเข้าสู่ระบบ Google ก่อน) กดปุ่มนี้ แอพจะเปิดตามปกติ มีแถบสีฟ้าของ Google ด้านบน</small>
+  </div>
+</div></div>
+<script>
+  // แอพส่งข้อความกลับมาเมื่อโหลดแล้ว: ซ่อนหน้ารอ และใช้สีพื้นหลังเดียวกับแอพที่ขอบจอ
+  var ok = false, wait = document.getElementById('wait');
+  window.addEventListener('message', function (e) {
+    if (!/^https:\/\/[a-z0-9-]+-script\.googleusercontent\.com$|^https:\/\/script\.google\.com$/.test(e.origin)) return;
+    var m = e.data || {}; if (!m.spendio) return;
+    ok = true; wait.classList.add('gone');
+    if (m.theme) document.documentElement.dataset.theme = m.theme;
+    if (m.bg) { document.body.style.background = m.bg; document.querySelector('meta[name=theme-color]').setAttribute('content', m.bg); }
+  });
+  setTimeout(function () { if (!ok) { document.getElementById('msg').textContent = 'เปิดแบบเต็มจอไม่สำเร็จ'; document.getElementById('fallback').style.display = 'block'; } }, 15000);
+</script>
+</body>
+</html>
