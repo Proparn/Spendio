@@ -8,7 +8,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Spendio">
 <meta name="theme-color" content="#F5F6FA">
-<meta name="referrer" content="no-referrer">
 <title>Spendio</title>
 <link rel="apple-touch-icon" href="../icons/apple-touch-icon-180.png">
 <link rel="icon" href="../icons/favicon-32.png">
@@ -26,6 +25,7 @@
   #wait p { color: var(--soft); font-size: 15px; margin: 14px 0 0; }
   #fallback { display: none; margin-top: 18px; }
   #fallback a { display: inline-block; background: var(--pri); color: #fff; text-decoration: none; padding: 13px 22px; border-radius: 14px; font-weight: 600; font-size: 16px; }
+  #diag { display: block; color: var(--soft); margin-top: 14px; font-size: 12px; opacity: .8; }
   #fallback small { display: block; color: var(--soft); margin-top: 10px; font-size: 13px; max-width: 300px; line-height: 1.5; }
 </style>
 </head>
@@ -36,20 +36,36 @@
   <p id="msg">กำลังเปิด Spendio…</p>
   <div id="fallback">
     <a id="direct" href="https://script.google.com/macros/s/AKfycbysZvRIXgyZBFS_cTxvLFYDHZTr9HWC90HzCVLwjCUBomOEOmr9IJFYMjwnVG90Sj_X/exec" target="_top">เปิดแบบปกติ</a>
+    <small id="diag"></small>
     <small>ถ้าเปิดแบบเต็มจอไม่ขึ้น (เช่น ต้องเข้าสู่ระบบ Google ก่อน) กดปุ่มนี้ แอพจะเปิดตามปกติ มีแถบสีฟ้าของ Google ด้านบน</small>
   </div>
 </div></div>
 <script>
-  // แอพส่งข้อความกลับมาเมื่อโหลดแล้ว: ซ่อนหน้ารอ และใช้สีพื้นหลังเดียวกับแอพที่ขอบจอ
-  var ok = false, wait = document.getElementById('wait');
+  // ซ่อนหน้ารอเมื่อแอพ "แสดงผลแล้วจริง" (ready) เท่านั้น ถ้าไม่มาภายใน 6 วินาที โชว์ปุ่มเปิดแบบปกติ พร้อมบอกว่าค้างขั้นไหน
+  var stage = 'page', wait = document.getElementById('wait');
+  function fail(why) {
+    wait.classList.remove('gone');
+    document.getElementById('msg').textContent = 'เปิดแบบเต็มจอไม่สำเร็จ';
+    document.getElementById('diag').textContent = why;
+    document.getElementById('fallback').style.display = 'block';
+  }
   window.addEventListener('message', function (e) {
     if (!/^https:\/\/[a-z0-9-]+-script\.googleusercontent\.com$|^https:\/\/script\.google\.com$/.test(e.origin)) return;
     var m = e.data || {}; if (!m.spendio) return;
-    ok = true; wait.classList.add('gone');
     if (m.theme) document.documentElement.dataset.theme = m.theme;
     if (m.bg) { document.body.style.background = m.bg; document.querySelector('meta[name=theme-color]').setAttribute('content', m.bg); }
+    if (m.alive && stage === 'page') stage = 'alive';
+    if (m.ready) {
+      stage = 'ready';
+      if (String(m.ready).indexOf('error') === 0) return fail('แอพแจ้ง: ' + String(m.ready).slice(6));
+      if (!(m.h >= 200)) return fail('ขั้น: แอพโหลดแล้ว แต่จอในกรอบสูง ' + (m.h || 0) + ' px');
+      wait.classList.add('gone');
+    }
   });
-  setTimeout(function () { if (!ok) { document.getElementById('msg').textContent = 'เปิดแบบเต็มจอไม่สำเร็จ'; document.getElementById('fallback').style.display = 'block'; } }, 15000);
+  setTimeout(function () {
+    if (stage === 'ready') return;
+    fail(stage === 'alive' ? 'ขั้น: แอพเริ่มทำงานแล้ว แต่ยังไม่แสดงผล' : 'ขั้น: ยังไม่ได้รับสัญญาณจากแอพ (อาจต้องเข้าสู่ระบบ Google)');
+  }, 6000);
 </script>
 </body>
 </html>
